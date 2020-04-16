@@ -1,26 +1,30 @@
 ---
 title: "COVID-19 Cases in Hong Kong"
 author: "Qixiao Zhong"
-date: "April 4, 2020"
 output: html_notebook
 ---
+
+### Introduction
+
 
 ### Clean up environment and load packages
 ```{r}
 # clean up the RStudio environment 
 rm(list = ls())
+```
 
+```{r}
 # load all packages here: `mosaic`, `tidyverse`, `lubridate`, and all others used
 library(mosaic)
 library(tidyverse)
 library(lubridate)
+library(jsonlite)
+library(leaflet)
 ```
 
 ### Data Intake
 
 The following data of COVID-19 inaction cases in Hong Kong is from DATA.GOV.HK, a web interface provided by the Office of the Government Chief Information Officer of the Government of the Hong Kong Special Administrative Region to the public for obtaining certain public sector information. The data from the site are open for development or analysis. 
-
-Each case of the data source represent a COVID-19 infection case in Hong Kong, and there are 846 cases in total so far on April 4, 2020. The interesting variables may include report date, sex, age and so on.
 
 ```{r warning=FALSE}
 cases <- read.csv("https://www.chp.gov.hk/files/misc/enhanced_sur_covid_19_eng.csv")
@@ -39,17 +43,34 @@ cases <- cases %>% transmute(
 cases
 ```
 
-Another data source from DATA.GOV.HK may be a useful support, which is about the buildings in which probable/confirmed cases have resided. This data source is not tidy and needs proper transformation before use.
+**So far on `r month(today(), label = TRUE, abbr = FALSE)` `r day(today())`, `r year(today())`, there are `r as.numeric(count(cases))` COVID-19 cases in Hong Kong.**
 
-```{r}
+Another data source from DATA.GOV.HK is about the buildings in which probable/confirmed cases have been.
+
+```{r warning=FALSE}
 buildings <- read.csv("https://www.chp.gov.hk/files/misc/building_list_eng.csv")
-head(buildings)
+buildings <- buildings %>% separate_rows(Related.probable.confirmed.cases) %>% transmute(
+  District = as.character(District),
+  BuildingName = as.character(Building.name),
+  caseID = as.integer(Related.probable.confirmed.cases)
+) %>% na.omit()
+buildings
 ```
 
-### Guiding Question
-- Among the confirmed cases, is the distribution of age for male different from for that for female?
 
-### Investigation
+One more data source from DATA.GOV.HK tracks the flights (or other vehicles) taken by probable/confirmed cases of COVID-19 in the past 14 days.
+```{r}
+flights <- read.csv("http://www.chp.gov.hk/files/misc/flights_trains_list_eng.csv")
+flights <- flights %>% transmute(
+  number = Flight.Train.Ship.number,
+  departure = Departure...arrival,
+  date = Date.of.travel,
+  caseID = Related.probable.confirmed.cases
+)
+flights
+```
+
+### Age of Cases
 
 ```{r}
 # Number of cases for male and female
@@ -63,11 +84,69 @@ cases %>% filter(confidence == "Confirmed") %>%
   theme_bw()
 ```
 
-The plot indicates that the age distribution does not depends on sex so much, and the age of cases is most likely about 20.
+The age distribution does not depends on sex so much, and the age of cases is most likely about 20.
 
-
+### Current Status of Confirmed Cases
 ```{r}
-cases %>% filter(confidence == "Confirmed", caseSource == "Imported") %>% 
-  ggplot(aes(x = reportDate, color = citizenship)) + geom_bar(aes(fill = citizenship), alpha = .5) +
+cases %>% filter(confidence == "Confirmed") %>% 
+  ggplot(aes(x = reportDate, color = status)) + geom_bar(aes(fill = status), alpha = .5) +
   theme_bw()
 ```
+
+Most comfirmed cases since mid-March are hospitalized and most comfirmed cases before mid-March are cured. There are very few deceased cases.
+
+### Source of Confirmed Cases
+```{r}
+cases %>% filter(confidence == "Confirmed") %>% 
+  ggplot(aes(x = reportDate, color = caseSource)) + geom_bar(aes(fill = caseSource), alpha = .5) +
+  theme_bw()
+```
+Encountering the global pandemic of COVID-19, many people flied back to the city (including me) in the recent month, bringing hundreds of imported cases.
+
+### Where are the Imported Cases in the Past 14 Days from?
+```{r}
+flights %>% inner_join(flights %>% group_by(departure) %>% summarise(count = n()), by = "departure") %>%
+  inner_join(cases, by = "caseID") %>% 
+  ggplot(aes(fill = citizenship, color = citizenship)) + geom_bar(aes(x = reorder(departure, desc(count))), alpha = .5) + 
+  theme_bw() + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + xlab("City of Departure") 
+```
+
+All imported cases in the past 14 days are Hong Kong citizens, and those from London are overwhelming.
+
+### Where have the confirmed cases resided?
+
+```{r}
+buildings <- buildings %>% mutate(lat = 0.0, long = 0,0)
+```
+
+Get lattitude and longitude for buildings from *OpenCage Geocoder*. Running this code chunk takes long time.
+
+```{r}
+for(i in 1:as.integer(count(buildings))) {
+  addr <- paste(buildings$BuildingName[i], buildings$District[i], "HK", sep = ", ")
+  addr <- gsub(pattern = " ", replacement = "%20", addr)
+  addr <- gsub(pattern = ",", replacement = "%2C", addr)
+  addr <- gsub(pattern = "&", replacement = "%26", addr)
+  url <- paste("https://api.opencagedata.com/geocode/v1/json?q=", addr, 
+              "&countrycode=hk%2Ccn&key=790d95dc016e4dbe8e71786011ab7c6a", sep = "")
+  geo <- fromJSON(url)$results$geometry %>% head(1)
+  buildings$lat[i] <- geo$lat
+  buildings$long[i] <- geo$lng
+}
+```
+
+Use `leaflet` to plot the locations of where confirmed cases have been lived.
+
+```{r}
+buildingsMap <-
+  buildings %>% group_by(lat, long) %>% summarise(count = n()) %>%
+  leaflet() %>%   
+  addTiles() %>%         
+  addCircleMarkers(radius = ~ 2 * sqrt(count), color = "red") %>% 
+  setView(114.15, 22.37, zoom = 11)
+buildingsMap
+```
+
+Most locations are near down town, which is not surprising.
+
+
