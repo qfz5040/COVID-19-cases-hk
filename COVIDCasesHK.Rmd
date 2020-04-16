@@ -1,0 +1,73 @@
+---
+title: "COVID-19 Cases in Hong Kong"
+author: "Qixiao Zhong"
+date: "April 4, 2020"
+output: html_notebook
+---
+
+### Clean up environment and load packages
+```{r}
+# clean up the RStudio environment 
+rm(list = ls())
+
+# load all packages here: `mosaic`, `tidyverse`, `lubridate`, and all others used
+library(mosaic)
+library(tidyverse)
+library(lubridate)
+```
+
+### Data Intake
+
+The following data of COVID-19 inaction cases in Hong Kong is from DATA.GOV.HK, a web interface provided by the Office of the Government Chief Information Officer of the Government of the Hong Kong Special Administrative Region to the public for obtaining certain public sector information. The data from the site are open for development or analysis. 
+
+Each case of the data source represent a COVID-19 infection case in Hong Kong, and there are 846 cases in total so far on April 4, 2020. The interesting variables may include report date, sex, age and so on.
+
+```{r warning=FALSE}
+cases <- read.csv("https://www.chp.gov.hk/files/misc/enhanced_sur_covid_19_eng.csv")
+cases <- cases %>% transmute(
+  caseID = Case.no.,
+  reportDate = dmy(Report.date),
+  onsetDate = dmy(Date.of.onset),
+  sex = Gender,
+  age = as.numeric(Age),
+  hospital = Name.of.hospital.admitted,
+  status = Hospitalised.Discharged.Deceased,
+  citizenship = HK.Non.HK.resident,
+  caseSource = Case.classification.,
+  confidence = Confirmed.probable
+)
+cases
+```
+
+Another data source from DATA.GOV.HK may be a useful support, which is about the buildings in which probable/confirmed cases have resided. This data source is not tidy and needs proper transformation before use.
+
+```{r}
+buildings <- read.csv("https://www.chp.gov.hk/files/misc/building_list_eng.csv")
+head(buildings)
+```
+
+### Guiding Question
+- Among the confirmed cases, is the distribution of age for male different from for that for female?
+
+### Investigation
+
+```{r}
+# Number of cases for male and female
+cases %>% filter(confidence == "Confirmed") %>% group_by(sex) %>% summarise(total = n())
+```
+
+```{r}
+# Distribution plot
+cases %>% filter(confidence == "Confirmed") %>% 
+  ggplot(aes(x = age, color = sex)) + geom_density(aes(fill = sex), alpha = 0.5) +
+  theme_bw()
+```
+
+The plot indicates that the age distribution does not depends on sex so much, and the age of cases is most likely about 20.
+
+
+```{r}
+cases %>% filter(confidence == "Confirmed", caseSource == "Imported") %>% 
+  ggplot(aes(x = reportDate, color = citizenship)) + geom_bar(aes(fill = citizenship), alpha = .5) +
+  theme_bw()
+```
