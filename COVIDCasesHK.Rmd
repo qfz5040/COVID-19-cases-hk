@@ -155,11 +155,11 @@ Use `leaflet` to plot the locations of where confirmed cases have been lived.
 
 ```{r message=FALSE}
 buildingsMap <-
-  buildings %>% group_by(longitude, latitude) %>% summarise(count = n()) %>%
+  buildings %>% group_by(longitude, latitude, buildingName, district) %>% summarise(count = n()) %>%
   leaflet() %>%   
   addTiles() %>%         
-  addCircleMarkers(radius = ~ 2 * sqrt(count), color = "red") %>% 
-  setView(114.15, 22.37, zoom = 11)
+  setView(114.15, 22.37, zoom = 11) %>%
+  addCircleMarkers(weight = 1, radius = ~ 3 * sqrt(count), color = "red", popup = ~ buildingName)
 buildingsMap
 ```
 
