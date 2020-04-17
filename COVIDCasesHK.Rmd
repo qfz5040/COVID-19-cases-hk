@@ -59,8 +59,10 @@ buildings <- buildings %>% separate_rows(Related.probable.confirmed.cases) %>% t
 buildings
 ```
 
+<br>
 
 One more data source from DATA.GOV.HK tracks the flights (or other vehicles) taken by probable/confirmed cases of COVID-19 in the past 14 days.
+
 ```{r}
 flights <- read.csv("http://www.chp.gov.hk/files/misc/flights_trains_list_eng.csv")
 flights <- flights %>% transmute(
