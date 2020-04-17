@@ -4,9 +4,6 @@ author: "Qixiao Zhong"
 output: html_notebook
 ---
 
-### Introduction
-
-
 ### Clean up environment and load packages
 ```{r}
 # clean up the RStudio environment 
@@ -50,8 +47,8 @@ Another data source from DATA.GOV.HK is about the buildings in which probable/co
 ```{r warning=FALSE}
 buildings <- read.csv("https://www.chp.gov.hk/files/misc/building_list_eng.csv")
 buildings <- buildings %>% separate_rows(Related.probable.confirmed.cases) %>% transmute(
-  District = as.character(District),
-  BuildingName = as.character(Building.name),
+  district = as.character(District),
+  buildingName = as.character(Building.name),
   caseID = as.integer(Related.probable.confirmed.cases)
 ) %>% na.omit()
 buildings
@@ -116,22 +113,27 @@ All imported cases in the past 14 days are Hong Kong citizens, and those from Lo
 ### Where have the confirmed cases resided?
 
 ```{r}
-buildings <- buildings %>% mutate(lat = 0.0, long = 0,0)
-```
-
-Get lattitude and longitude for buildings from *OpenCage Geocoder*. Running this code chunk takes long time.
-
-```{r}
-for(i in 1:as.integer(count(buildings))) {
-  addr <- paste(buildings$BuildingName[i], buildings$District[i], "HK", sep = ", ")
+getHKLocation <- function(street, district) {
+  addr <- paste(street, district, "HK", sep = ", ")
   addr <- gsub(pattern = " ", replacement = "%20", addr)
   addr <- gsub(pattern = ",", replacement = "%2C", addr)
   addr <- gsub(pattern = "&", replacement = "%26", addr)
   url <- paste("https://api.opencagedata.com/geocode/v1/json?q=", addr, 
               "&countrycode=hk%2Ccn&key=790d95dc016e4dbe8e71786011ab7c6a", sep = "")
   geo <- fromJSON(url)$results$geometry %>% head(1)
-  buildings$lat[i] <- geo$lat
-  buildings$long[i] <- geo$lng
+  return(c(geo$lng, geo$lat))
+}
+buildings <- buildings %>% mutate(longitude = NA, latitude = NA)
+```
+<br>
+
+Get lattitude and longitude for buildings from *OpenCage Geocoder*. Running this code chunk takes long time.
+
+```{r}
+for(i in 1:as.integer(count(buildings))) {
+  loc <- getHKLocation(buildings$buildingName[i], buildings$district[i])
+  buildings$longitude[i] <- loc[1]
+  buildings$latitude[i] <- loc[2]
 }
 ```
 
@@ -139,7 +141,7 @@ Use `leaflet` to plot the locations of where confirmed cases have been lived.
 
 ```{r}
 buildingsMap <-
-  buildings %>% group_by(lat, long) %>% summarise(count = n()) %>%
+  buildings %>% group_by(longitude, latitude) %>% summarise(count = n()) %>%
   leaflet() %>%   
   addTiles() %>%         
   addCircleMarkers(radius = ~ 2 * sqrt(count), color = "red") %>% 
