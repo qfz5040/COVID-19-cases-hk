@@ -116,7 +116,7 @@ Encountering the global pandemic of COVID-19, many people flied back to the city
 ### Where are the Imported Cases in the Past 14 Days from?
 ```{r}
 flights %>% inner_join(flights %>% group_by(departure) %>% summarise(count = n()), by = "departure") %>%
-  inner_join(cases, by = "caseID") %>% 
+  inner_join(cases, by = "caseID") %>% filter(count > 1) %>%
   ggplot(aes(fill = citizenship, color = citizenship)) + geom_bar(aes(x = reorder(departure, desc(count))), alpha = .5) + 
   theme_bw() + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + xlab("City of Departure") 
 ```
@@ -158,8 +158,8 @@ buildingsMap <-
   buildings %>% group_by(longitude, latitude) %>% summarise(count = n()) %>%
   leaflet() %>%   
   addTiles() %>%         
-  addCircleMarkers(radius = ~ 2 * sqrt(count), color = "red") %>% 
-  setView(114.15, 22.37, zoom = 11)
+  setView(114.15, 22.37, zoom = 11) %>%
+  addCircleMarkers(weight = 1, radius = ~ 3 * sqrt(count), color = "red", popup = ~ paste(count, "cases"))
 buildingsMap
 ```
 
