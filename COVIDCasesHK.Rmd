@@ -4,7 +4,6 @@ author: "Qixiao Zhong"
 output: html_notebook
 ---
 
-### Clean up environment and load packages
 ```{r}
 # clean up the RStudio environment 
 rm(list = ls())
@@ -18,6 +17,8 @@ library(lubridate)
 library(jsonlite)
 library(leaflet)
 ```
+
+<br>
 
 ### Data Intake
 
@@ -41,6 +42,8 @@ cases
 ```
 
 **So far on `r month(today(), label = TRUE, abbr = FALSE)` `r day(today())`, `r year(today())`, there are `r as.numeric(count(cases))` COVID-19 cases in Hong Kong.**
+
+<br>
 
 Another data source from DATA.GOV.HK is about the buildings in which probable/confirmed cases have been.
 
@@ -67,6 +70,8 @@ flights <- flights %>% transmute(
 flights
 ```
 
+<br>
+
 ### Age of Cases
 
 ```{r}
@@ -83,14 +88,18 @@ cases %>% filter(confidence == "Confirmed") %>%
 
 The age distribution does not depends on sex so much, and the age of cases is most likely about 20.
 
+<br>
+
 ### Current Status of Confirmed Cases
 ```{r}
 cases %>% filter(confidence == "Confirmed") %>% 
-  ggplot(aes(x = reportDate, color = status)) + geom_bar(aes(fill = status), alpha = .5) +
+  ggplot(aes(x = reportDate, color = status)) + geom_bar(aes(fill = status), alpha = .5, ) +
   theme_bw()
 ```
 
 Most comfirmed cases since mid-March are hospitalized and most comfirmed cases before mid-March are cured. There are very few deceased cases.
+
+<br>
 
 ### Source of Confirmed Cases
 ```{r}
@@ -99,6 +108,8 @@ cases %>% filter(confidence == "Confirmed") %>%
   theme_bw()
 ```
 Encountering the global pandemic of COVID-19, many people flied back to the city (including me) in the recent month, bringing hundreds of imported cases.
+
+<br>
 
 ### Where are the Imported Cases in the Past 14 Days from?
 ```{r}
@@ -109,6 +120,8 @@ flights %>% inner_join(flights %>% group_by(departure) %>% summarise(count = n()
 ```
 
 All imported cases in the past 14 days are Hong Kong citizens, and those from London are overwhelming.
+
+<br>
 
 ### Where have the confirmed cases resided?
 
@@ -125,7 +138,6 @@ getHKLocation <- function(street, district) {
 }
 buildings <- buildings %>% mutate(longitude = NA, latitude = NA)
 ```
-<br>
 
 Get lattitude and longitude for buildings from *OpenCage Geocoder*. Running this code chunk takes long time.
 
@@ -139,7 +151,7 @@ for(i in 1:as.integer(count(buildings))) {
 
 Use `leaflet` to plot the locations of where confirmed cases have been lived.
 
-```{r}
+```{r message=FALSE}
 buildingsMap <-
   buildings %>% group_by(longitude, latitude) %>% summarise(count = n()) %>%
   leaflet() %>%   
@@ -151,4 +163,8 @@ buildingsMap
 
 Most locations are near down town, which is not surprising.
 
+<br>
 
+[**Home**](https://qfz5040.github.io/COVID-19-cases-hk/)
+
+<br>

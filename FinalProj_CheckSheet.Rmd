@@ -17,10 +17,10 @@ output: html_notebook
 
 *Description: (1) Analysis includes at least two different data sources. (2) Primary data source may NOT be loaded from an R package--though supporting data may. (3) Access to all data sources is contained within the analysis. (4) Imported data is inspected at beginning of analysis using one or more R functions: e.g., str, glimpse, head, tail, names, nrow, etc*
 
-(A) .Rmd Line numbers where at least two different data sources are imported:  
+(A) .Rmd Line numbers where at least two different data sources are imported: 28, 51, 63
 
 
-(B) .Rmd Line numbers for inspecting data intake:  
+(B) .Rmd Line numbers for inspecting data intake: 41, 57, 70
 
 
 ### Data Wrangling (5 out of 8 required)
@@ -28,25 +28,25 @@ output: html_notebook
 *Description: Students need not use every function and method introduced in STAT 184, but clear demonstration of proficiency should include proper use of 5 out of the following 8 topics from class: (+) various data verbs for general data wrangling like filter, mutate, summarise, arrange, group_by, etc. (+) joins for multiple data tables. (+) spread & gather to stack/unstack variables (+) regular expressions (+) reduction and/or transformation functions like mean, sum, max, min, n(), rank, pmin, etc. (+) user-defined functions (+) loops and control flow (+) machine learning*
 
 
-(A) .Rmd Line number(s) for general data wrangling: 
+(A) .Rmd Line number(s) for general data wrangling: 29, 52, 64, 79, 84, 95, 106, 116, 139, 156
 
 
-(B) .Rmd Line number(s) for a join operation: 
+(B) .Rmd Line number(s) for a join operation: 117
 
 
-(C) .Rmd Line number(s) for a spread or gather operation (or equivalent):
+(C) .Rmd Line number(s) for a spread or gather operation (or equivalent): 52
 
 
 (D) .Rmd Line number(s) for use of regular expressions: 
 
 
-(E) .Rmd Line number(s) for use of reduction and/or transformation functions: 
+(E) .Rmd Line number(s) for use of reduction and/or transformation functions: 79, 116, 156
 
 
-(F) .Rmd Line number(s) for use of user-defined functions: 
+(F) .Rmd Line number(s) for use of user-defined functions: 129
 
 
-(G) .Rmd Line number(s) for use of loops and/or control flow: 
+(G) .Rmd Line number(s) for use of loops and/or control flow: 145
 
 
 (H) .Rmd Line number(s) for use of machine learning (not "wrangling" but scored here): 
@@ -58,13 +58,13 @@ output: html_notebook
 *Description: Students need not use every function and method introduced in STAT 184, but clear demonstration of proficiency should include a range of useful of data visualizations that are (1) relevant to stated research question for the analysis, (2) include at least one effective display of many--at least 3--variables, and (3) include 3 of the following 5 visualization techniques learned in STAT 184: (+) use of multiple geoms such as points, density, lines, segments, boxplots, bar charts, histograms, etc (+) use of multiple aesthetics--not necessarily all in the same graph--such as color, size, shape, x/y position, facets, etc (+) layered graphics such as points and accompanying smoother, points and accompanying boxplots, overlaid density distributions, etc (+) leaflet maps (+) decision tree and/or dendogram displaying machine learning model results*
 
 
-(A) .Rmd Line number(s) for use of mulitple different geoms:  
+(A) .Rmd Line number(s) for use of mulitple different geoms: 85, 96, 107, 118
 
-(B) .Rmd Line number(s) for use of multiple aesthetics:  
+(B) .Rmd Line number(s) for use of multiple aesthetics: 85, 96, 107, 118
 
 (C) .Rmd Line number(s) for use of layered graphics:  
 
-(D) .Rmd Line number(s) for use of leaflet maps:  
+(D) .Rmd Line number(s) for use of leaflet maps: 157
 
 (E) .Rmd Line number(s) for use of decision tree or dendogram results:    
 
@@ -83,5 +83,9 @@ output: html_notebook
 
 (E) *EXTRA CREDIT* (1) Project is submitted as a self-contained GitHub Repo (2) project submission is a functioning github.io webpage generated for the project Repo. Note: a link to the GitHub Repo itself will be awarded partial credit, but does not itself qualify as a "webpage" of the analysis.
 
+<br>
 
+[**Home**](https://qfz5040.github.io/COVID-19-cases-hk/)
+
+<br>
 
