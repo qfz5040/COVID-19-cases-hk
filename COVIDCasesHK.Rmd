@@ -1,7 +1,9 @@
 ---
 title: "COVID-19 Cases in Hong Kong"
 author: "Qixiao Zhong"
-output: html_notebook
+output:
+  html_notebook:
+      code_folding: hide
 ---
 
 ```{r}
