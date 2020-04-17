@@ -159,7 +159,7 @@ buildingsMap <-
   leaflet() %>%   
   addTiles() %>%         
   setView(114.15, 22.37, zoom = 11) %>%
-  addCircleMarkers(weight = 1, radius = ~ 3 * sqrt(count), color = "red", popup = ~ paste(count, "cases"))
+  addCircleMarkers(weight = 1, radius = ~ 3 * sqrt(count), color = "red", popup = ~ paste(count, "cases"), fillOpacity = .5)
 buildingsMap
 ```
 
