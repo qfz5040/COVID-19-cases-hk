@@ -154,13 +154,13 @@ for(i in 1:as.integer(count(buildings))) {
 Use `leaflet` to plot the locations of where confirmed cases have been lived.
 
 ```{r message=FALSE}
-#buildingsMap <-
-#  buildings %>% group_by(longitude, latitude, buildingName, district) %>% summarise(count = n()) %>%
-#  leaflet() %>%   
-#  addTiles() %>%         
-#  setView(114.15, 22.37, zoom = 11) %>%
-#  addCircleMarkers(weight = 1, radius = ~ 3 * sqrt(count), color = "red", popup = ~ paste(count, "cases"))
-#buildingsMap
+buildingsMap <-
+  buildings %>% group_by(longitude, latitude) %>% summarise(count = n()) %>%
+  leaflet() %>%   
+  addTiles() %>%         
+  setView(114.15, 22.37, zoom = 11) %>%
+  addCircleMarkers(weight = 1, radius = ~ 3 * sqrt(count), color = "red", popup = ~ paste(count, "cases"))
+buildingsMap
 ```
 
 Most locations are near down town, which is not surprising.
