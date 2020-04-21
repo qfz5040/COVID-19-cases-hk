@@ -47,7 +47,7 @@ cases
 
 <br>
 
-Another data source from DATA.GOV.HK is about the buildings in which probable/confirmed cases have been.
+Another data source from DATA.GOV.HK is about the buildings in which probable/confirmed cases have been in the past 14 days.
 
 ```{r warning=FALSE}
 buildings <- read.csv("https://www.chp.gov.hk/files/misc/building_list_eng.csv")
@@ -127,7 +127,7 @@ All imported cases in the past 14 days are Hong Kong citizens, and those from Lo
 
 <br>
 
-### Where have the confirmed cases resided?
+### Where have the confirmed cases resided in the past 14 days?
 
 ```{r}
 getHKLocation <- function(street, district) {
@@ -148,8 +148,10 @@ Get lattitude and longitude for buildings from *OpenCage Geocoder*. Running this
 ```{r}
 for(i in 1:as.integer(count(buildings))) {
   loc <- getHKLocation(buildings$buildingName[i], buildings$district[i])
-  buildings$longitude[i] <- loc[1]
-  buildings$latitude[i] <- loc[2]
+  if (length(loc) > 0) {
+    buildings$longitude[i] <- loc[1]
+    buildings$latitude[i] <- loc[2]
+  }
 }
 ```
 
@@ -157,7 +159,7 @@ Use `leaflet` to plot the locations of where confirmed cases have been lived.
 
 ```{r message=FALSE}
 buildingsMap <-
-  buildings %>% group_by(longitude, latitude) %>% summarise(count = n()) %>%
+  buildings %>% na.omit() %>% group_by(longitude, latitude) %>% summarise(count = n()) %>%
   leaflet() %>%   
   addTiles() %>%         
   setView(114.15, 22.37, zoom = 11) %>%
